@@ -232,7 +232,7 @@ class InjectCodeService extends BaseService {
       });
   };
 
-  injectRules = async (tabId, rules) => {
+  injectRules = async (tabId, rules) => {	
     await chrome.scripting
       .executeScript({
         target: { tabId, allFrames: true },
@@ -249,7 +249,6 @@ class InjectCodeService extends BaseService {
         injectImmediately: true,
       })
       .catch((error) => {
-        // should be tracking here
       });
   };
 

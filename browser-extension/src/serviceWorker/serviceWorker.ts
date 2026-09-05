@@ -44,10 +44,11 @@ class ServiceWorker extends BaseService {
       [
         { key: "pageType", value: PageType.MODIFY_RESPONSE },
         { key: "enabled", value: true },
-      ],
+      ]
     ];
 
     const rules: IRuleMetaData[] = await StorageService.getFilteredRules(filters);
+	
     InjectCodeService.injectRules(details.tabId, rules);
   };
 

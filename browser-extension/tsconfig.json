@@ -6,7 +6,7 @@
         "target": "es6",
         "esModuleInterop": true,
         "sourceMap": false,
-        "rootDir": "/",
+        "rootDir": "./src",
         "outDir": "dist",
         "noEmitOnError": true,
         "noImplicitAny": false,
