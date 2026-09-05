@@ -107,7 +107,7 @@ class RuleService extends BaseService {
       if (ruleMetaData.enabled) {
         // TODO: disable for all type of rule
         // until refactor all features will be done
-        // await BrowserRuleService.set([{ ...rule, id }]);
+        await BrowserRuleService.set([{ ...rule, id }]);
       }
     }
     const id = connectedRuleIds[0] || generateId();
@@ -123,7 +123,7 @@ class RuleService extends BaseService {
     //   actionType: PostMessageAction[PostMessageAction.UpdateRule],
     // });
 
-    if (rules) {
+    if (rules) {		
       const removeRuleIds: number[] = [...ruleMetaData.connectedRuleIds];
       ruleMetaData.connectedRuleIds = [];
       for (const rule of rules) {
@@ -136,7 +136,11 @@ class RuleService extends BaseService {
         // await BrowserRuleService.set(rules, removeRuleIds);
       }
     }
+	
+	console.log('updateRule', rules);
     await StorageService.set({ [ruleMetaData.id]: ruleMetaData });
+	await this.generateAndActivateRules();
+	
     return ruleMetaData;
   };
 
@@ -182,15 +186,30 @@ class RuleService extends BaseService {
       const ruleMetaDatas: IRuleMetaData[] = await this.getStorageRules();
       const rules: Rule[] = [];
       for (const ruleMetaData of ruleMetaDatas) {
-        rules.push(...generateRules(ruleMetaData));
+		if (ruleMetaData.enabled) {
+			rules.push(...generateRules(ruleMetaData));	
+		}
       }
       await BrowserRuleService.set(rules);
     } else {
       await BrowserRuleService.clear();
     }
   };
+  
+  generateAndActivateRules = async (): Promise<void> => {
+	const ruleMetaDatas: IRuleMetaData[] = await this.getStorageRules();
+  	const rules: Rule[] = [];
+	
+	for (const ruleMetaData of ruleMetaDatas) {
+		if (ruleMetaData.enabled) {
+			rules.push(...generateRules(ruleMetaData));	
+		}
+  	}
+	await BrowserRuleService.clear();
+  	await BrowserRuleService.set(rules);
+  }
 
-  onMatchRule = async (tab) => {
+  onMatchRule = async (tab) => {	
     if (tab.status === "complete") {
       const enabledRules: IRuleMetaData[] = await StorageService.getFilteredRules([[{ key: "enabled", value: true }]]);
       const isUrlsMatch = enabledRules.some(({ conditions }) =>
@@ -235,6 +254,7 @@ class RuleService extends BaseService {
       // it doesn't remove the rule
       await BrowserRuleService.updateDynamicRules(updateRuleOptions);
       await StorageService.set({ [id]: { ...ruleMetaData, enabled: checked } });
+	  await this.generateAndActivateRules();
     } catch (error) {
       handleError(error, {
         action: "ChangeRuleStatusById",

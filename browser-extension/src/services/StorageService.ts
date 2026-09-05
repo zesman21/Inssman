@@ -15,7 +15,6 @@ class StorageService {
 
   async getFilteredRules(filterArr: { [key: string]: any }[][]): Promise<IRuleMetaData[]> {
     const rules = await this.getRules();
-    console.log("rules", rules);
     return rules.filter((rule) =>
       filterArr.some((filters) => filters.every((filter) => rule[filter.key] === filter.value))
     );
